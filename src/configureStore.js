@@ -1,11 +1,9 @@
 import { loadState, saveState } from "./localStorage";
 import { createStore, combineReducers } from "redux";
 import todos from "../src/reducers/todosReducer";
-import visibilityFilter from "../src/reducers/visibilityFilterReducer";
 
 const configureStore = () => {
   let todoApp = combineReducers({
-    visibilityFilter,
     todos
   });
 
