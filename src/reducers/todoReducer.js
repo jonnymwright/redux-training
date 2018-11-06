@@ -8,7 +8,8 @@ const todo = (todo, action) => {
       };
     case "TOGGLE_TODO":
       if (todo.id === action.id) {
-        return { id: todo.id, text: todo.text, completed: !todo.completed };
+        const result = { id: todo.id, text: todo.text, completed: !todo.completed };
+        return result;
       } else {
         return todo;
       }
