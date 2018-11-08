@@ -1,46 +1,60 @@
-import todo from "./todoReducer";
 import { combineReducers } from "redux";
 
 const byId = (state = {}, action) => {
   switch (action.type) {
-    case "ADD_TODO":
-    case "TOGGLE_TODO":
-      return {
-        ...state, 
-        [action.id]: todo(state[action.id], action)
-      };
+    case "RECEIVE_TODOS":
+      console.log("byId received todos:", state);
+      const nextState = { ...state };
+      action.response.forEach(todo => {
+        nextState[todo.id] = todo;
+      });
+      return nextState;
     default:
       return state;
   }
 };
 
-const allIds = (state=[], action) => {
+const receiveTodos = (state, action) => {
   switch (action.type) {
-    case "ADD_TODO":
-      return [...state, action.id];
+    case "RECEIVE_TODOS":
+      console.log("receiveTodos received todos:", state);
+      return action.response.map(todo => todo.id);
     default:
       return state;
   }
-}
+};
+
+const allIds = (state = [], action) => {
+  if (action.filter !== "all") return state;
+  return receiveTodos(state, action);
+};
+
+const activeIds = (state = [], action) => {
+  if (action.filter !== "active") return state;
+  return receiveTodos(state, action);
+};
+
+const completedIds = (state = [], action) => {
+  if (action.filter !== "completed") return state;
+  return receiveTodos(state, action);
+};
+
+const idsByFilter = combineReducers({
+  all: allIds,
+  active: activeIds,
+  completed: completedIds
+});
 
 const todos = combineReducers({
-  byId, allIds
-})
+  byId,
+  idsByFilter
+});
 
 export default todos;
 
-const getAllTodos = (state) => 
-  state.allIds.map(id => state.byId[id]);
+//selectors
 
 export const getVisibleTodos = (state, filter) => {
-  switch (filter) {
-    case "all":
-      return getAllTodos(state);
-    case "active":
-      return getAllTodos(state).filter(todo => !todo.completed);
-    case "completed":
-      return getAllTodos(state).filter(todo => todo.completed);
-    default:
-      return [];
-  }
+  const ids = state.idsByFilter[filter];
+  return ids.map(id => state.byId[id]);
 };
